@@ -19,33 +19,21 @@ function handler (req, res) {
   });
 }
 
-io.sockets.on('connection', function (socket) {
-
-  socket.on('add-user', function(data){
-    clients[data.username] = {
-      "socket": socket.id
-    };
-  });
-
-  socket.on('private-message', function(data){
-    console.log("Sending: " + data.content + " to " + data.username);
-    if (clients[data.username]){
-      io.sockets.connected[clients[data.username].socket].emit("add-message", data);
-    } else {
-      console.log("User does not exist: " + data.username); 
-    }
-  });
-
-  //Removing the socket on disconnect
-  socket.on('disconnect', function() {
-  	for(var name in clients) {
-  		if(clients[name].socket === socket.id) {
-  			delete clients[name];
-  			break;
-  		}
-  	}	
+io.sockets.on('connection', function(socket){
+  socket.on('subscribe', function(room) { 
+      console.log('joining room', room);
+      socket.join(room); 
   })
 
+  socket.on('unsubscribe', function(room) {  
+      console.log('leaving room', room);
+      socket.leave(room); 
+  })
+
+  socket.on('send', function(data) {
+      console.log('sending message');
+      io.sockets.in(data.room).emit('message', data);
+  });
 });
 
 
