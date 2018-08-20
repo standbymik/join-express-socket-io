@@ -21,11 +21,6 @@ var clients = {};
 
 app.set('view engine', 'ejs')
 
-app.use((req,res,next)=>{
-  req.session.user = 'mik'
-  next()
-})
-
 app.get('/', (req, res) => {
   if(!req.session.user)
     res.send('Please login')
